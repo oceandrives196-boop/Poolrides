@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Floot Customer - Purple & White</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,system-ui;background:#fff;height:100dvh;overflow:hidden}
+.app{position:relative;width:100%;height:100dvh;max-width:480px;margin:0 auto;background:#f6f5fb;overflow:hidden}
+#map{position:absolute;inset:0;z-index:1}
+.header{position:absolute;top:0;left:0;right:0;z-index:10;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.profile{background:#fff;border-radius:999px;padding:6px 14px 6px 6px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A78BFA);display:grid;place-items:center;font-weight:900;color:#fff}
+.logout{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15);border:1px solid #eee;display:grid;place-items:center;cursor:pointer}
+.sheet{position:absolute;bottom:0;left:0;right:0;z-index:20;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -12px 48px rgba(0,0,0,.18);max-height:88dvh;display:flex;flex-direction:column}
+.handle{width:36px;height:4px;background:#E9E5FF;border-radius:999px;margin:10px auto 0}
+.tabs{display:flex;gap:8px;padding:14px 16px 0}.tab{flex:1;padding:13px;border-radius:16px;border:none;font-weight:800;font-size:13px;cursor:pointer;display:flex;justify-content:center;gap:6px}.tab.active{background:#7C3AED;color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.3)}.tab:not(.active){background:#F5F3FF;color:#6B7280}
+.count{background:#fff;color:#7C3AED;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:900;margin-left:4px}
+.content{overflow:auto;padding:14px 12px 20px;flex:1;background:#fff}
+.card{background:#fff;border:1.5px solid #EDE9FE;border-radius:20px;padding:12px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.card.active{border-color:#7C3AED;box-shadow:0 8px 24px rgba(124,58,237,.15)}
+.route{display:flex;gap:10px;align-items:flex-start;margin-bottom:2px}.dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}.dot.green{background:#7C3AED}.dot.purple{background:#7C3AED}
+.addr{font-weight:700;font-size:13px;color:#1F2937;line-height:1.3;flex:1}
+.sub{font-size:11px;color:#6B7280;margin:6px 0 10px 20px;line-height:1.4}
+.otp-row{display:flex;gap:10px;margin:10px 0}
+.otp-box{flex:1;background:#1F1A2E;color:#fff;border-radius:14px;padding:12px;text-align:center;border:2px solid #7C3AED}
+.otp-box .lbl{font-size:10px;letter-spacing:.08em;opacity:.8;font-weight:800;color:#A78BFA}
+.otp-box .val{font-weight:900;font-size:28px;margin-top:4px;letter-spacing:.15em}
+.collect-box{flex:1;background:#FEF3C7;border-radius:14px;padding:12px;text-align:center;border:1px solid #FDE68A}
+.collect-box .lbl{font-size:10px;letter-spacing:.08em;color:#92400E;font-weight:800}
+.collect-box .val{font-weight:900;font-size:18px;color:#78350F;margin-top:2px}
+.actions{display:flex;gap:8px;margin-top:10px}
+.btn{border:none;border-radius:999px;padding:11px 14px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;flex:1}
+.btn-join{background:#7C3AED;color:#fff;box-shadow:0 6px 16px rgba(124,58,237,.25)}
+.btn-call{background:#F5F3FF;color:#7C3AED}
+.btn-cancel{background:#FFF1F2;color:#BE123C}
+.btn-search{background:#7C3AED;color:#fff}
+.input-group{position:relative;margin-bottom:12px}.input{width:100%;background:#F8F7FF;border:1.5px solid #EDE9FE;border-radius:16px;padding:16px 16px 16px 48px;font-weight:700;outline:none}.input:focus{border-color:#7C3AED;background:#fff}
+.icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
+.sug{position:absolute;left:0;right:0;top:56px;background:#fff;border:1px solid #EDE9FE;border-radius:16px;z-index:99;max-height:180px;overflow:auto;display:none;box-shadow:0 12px 30px rgba(0,0,0,.15)}.sug div{padding:12px;font-weight:600;font-size:13px;border-bottom:1px solid #F5F3FF;cursor:pointer}
+.notif{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:14px;z-index:99999;display:none;gap:8px;font-weight:600;font-size:13px}.notif.show{display:flex}
+.auth-bg{position:fixed;inset:0;z-index:10000;background:#fff;display:flex;flex-direction:column;min-height:100dvh}
+.auth-top{height:40dvh;background:linear-gradient(180deg,#7C3AED 0%, #5B21B6 100%);border-radius:0 0 32px 32px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+.auth-card{flex:1;background:#fff;margin-top:-24px;border-radius:32px 32px 0 0;padding:24px 20px;overflow:auto}
+.label{font-size:10px;font-weight:800;color:#888;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 6px}
+.pool-card{background:#fff;border:1px solid #EDE9FE;border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer}
+.pool-card:hover{border-color:#7C3AED;box-shadow:0 4px 16px rgba(124,58,237,.15)}
+</style></head><body>
+<div id="notif" class="notif"><span id="nText"></span></div>
+
+<div id="authScreen" class="auth-bg"><div class="auth-top"><div style="width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.15);display:grid;place-items:center;font-size:28px"><i class="fa-solid fa-user"></i></div><div style="font-weight:900;font-size:24px;margin-top:14px">FLOOT CUSTOMER</div><div style="font-size:13px;opacity:.85">Find Rides • Pool Together</div></div>
+<div class="auth-card"><div style="display:flex;background:#F5F3FF;border-radius:14px;padding:4px;margin-bottom:18px"><button id="loginTab" style="flex:1;padding:12px;border-radius:10px;border:none;background:#fff;color:#7C3AED;font-weight:800">Login</button><button id="regTab" style="flex:1;padding:12px;border-radius:10px;border:none;background:transparent;color:#6B7280;font-weight:800">Register</button></div>
+<div id="loginForm"><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-envelope"></i></div><input id="loginEmail" class="input" placeholder="Email"></div><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-lock"></i></div><input id="loginPass" class="input" type="password" placeholder="Password"></div><button id="loginBtn" class="btn btn-join" style="width:100%;border-radius:16px">Continue</button><div id="loginMsg" style="font-size:11px;color:#666;text-align:center;margin-top:8px"></div></div>
+<div id="regForm" style="display:none"><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-user"></i></div><input id="regName" class="input" placeholder="Full name"></div><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-phone"></i></div><input id="regPhone" class="input" placeholder="Phone"></div><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-envelope"></i></div><input id="regEmail" class="input" placeholder="Email"></div><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-lock"></i></div><input id="regPass" class="input" type="password" placeholder="Password"></div><button id="regBtn" class="btn btn-join" style="width:100%;border-radius:16px">Create customer account</button><div id="regMsg" style="font-size:11px;color:#666;text-align:center;margin-top:8px"></div></div></div></div>
+
+<div class="app" id="mainApp" style="display:none"><div id="map"></div>
+<div class="header"><div class="profile"><div class="avatar" id="avatar">C</div><div><div style="font-weight:900;font-size:13px" id="custName">Customer</div><div style="font-size:11px;color:#6B7280" id="custEmail">customer • Rider</div></div></div><button class="logout" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></div>
+<div class="sheet"><div class="handle"></div>
+<div class="tabs"><button id="tSearch" class="tab active"><i class="fa-solid fa-magnifying-glass"></i> Search</button><button id="tRides" class="tab"><i class="fa-solid fa-ticket"></i> My Rides <span class="count" id="cRides">0</span></button></div>
+<div class="content">
+<div id="searchSec">
+<div class="label">Where to?</div>
+<div style="position:relative"><div class="input-group"><div class="icon" style="background:#F5F3FF;color:#7C3AED"><i class="fa-solid fa-circle"></i></div><input id="fromI" class="input" placeholder="Pickup - e.g. Ketu, Lagos - select from dropdown"></div><div id="fromS" class="sug"></div></div>
+<div style="position:relative"><div class="input-group"><div class="icon" style="background:#FEF2F2;color:#EF4444"><i class="fa-solid fa-location-dot"></i></div><input id="toI" class="input" placeholder="Destination - e.g. Onitsha - select from dropdown"></div><div id="toS" class="sug"></div></div>
+<button id="searchBtn" class="btn btn-search" style="width:100%;border-radius:16px;padding:14px"><i class="fa-solid fa-magnifying-glass"></i> Search Available Rides</button>
+<div id="sMsg" style="font-size:11px;color:#666;text-align:center;margin-top:8px"></div>
+<div id="poolsBox" style="margin-top:14px"></div>
+</div>
+<div id="ridesSec" style="display:none"><div class="label">My rides</div><div id="ridesBox"></div><div id="emptyBox" style="text-align:center;padding:30px"><div style="width:56px;height:56px;border-radius:50%;background:#F5F3FF;display:grid;place-items:center;margin:0 auto;color:#7C3AED"><i class="fa-solid fa-ticket"></i></div><div style="font-weight:800;margin-top:12px">No rides yet</div><div style="font-size:11px;color:#666;margin-top:4px">Search pools and join one.<br>Your OTP will show here only.<br>Driver will ask you for it.</div></div></div>
+</div></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, where, limit, onSnapshot, doc, getDoc, addDoc, updateDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyBVIJq5napb_egiLdKhGtySZoPeLUkY9Q4", authDomain: "floot-delivery.firebaseapp.com", projectId: "floot-delivery", storageBucket: "floot-delivery.firebasestorage.app", messagingSenderId: "786230599434", appId: "1:786230599434:web:e1913bd8c2e69a7e1c64f3" };
+const appF = initializeApp(firebaseConfig); const db = getFirestore(appF);
+let currentCustomer=null, map=null, fromCoord=null, toCoord=null, fromM=null, toM=null, line=null;
+let myRides=[], availablePools=[], prevIds=new Set();
+const CENTER=[6.5244,3.3792];
+const PLACES=[
+ {name:"Ketu, Kosofe, Lagos State, 100247, Nigeria",lat:6.6025,lng:3.3882},
+ {name:"Onitsha, Anambra State, Nigeria",lat:6.1240,lng:6.7883},
+ {name:"Lagos, Lagos Island, Lagos State, 100242, Nigeria",lat:6.4550,lng:3.3840},
+ {name:"Alimosho, Lagos State, Nigeria",lat:6.6140,lng:3.2620},
+ {name:"Yaba, Lagos",lat:6.5095,lng:3.3711},{name:"Ikeja, Lagos",lat:6.6018,lng:3.3515},{name:"Lekki, Lagos",lat:6.4456,lng:3.4558},
+ {name:"Oshodi, Lagos",lat:6.5538,lng:3.3425},{name:"Ikorodu Bus Stop, Lagos",lat:6.6194,lng:3.5081},{name:"CMS, Lagos Island",lat:6.4443,lng:3.3897},
+ {name:"Obalende, Lagos",lat:6.4428,lng:3.4036},{name:"Abuja, FCT, Nigeria",lat:9.0765,lng:7.3986}
+];
+const saved=JSON.parse(localStorage.getItem("floot_customer_session")||"null"); if(saved) loginOK(saved);
+function notif(m){ const e=document.getElementById("notif"); document.getElementById("nText").textContent=m; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),4500); if(navigator.vibrate) navigator.vibrate([100,50,100]); }
+function loginOK(c){ currentCustomer=c; document.getElementById("authScreen").style.display="none"; document.getElementById("mainApp").style.display="flex"; document.getElementById("custName").textContent=c.name.split(" ")[0]; document.getElementById("custEmail").textContent=(c.email?c.email.split("@")[0]:"customer")+" • Rider"; document.getElementById("avatar").textContent=(c.name||"C")[0].toUpperCase(); setTimeout(()=>{ initMap(); startListeners(); },500); }
+document.getElementById("loginTab").onclick=()=>{ document.getElementById("loginForm").style.display="block"; document.getElementById("regForm").style.display="none"; };
+document.getElementById("regTab").onclick=()=>{ document.getElementById("loginForm").style.display="none"; document.getElementById("regForm").style.display="block"; };
+document.getElementById("regBtn").onclick=async()=>{ const name=document.getElementById("regName").value.trim(), phone=document.getElementById("regPhone").value.trim(), email=document.getElementById("regEmail").value.trim().toLowerCase(), pass=document.getElementById("regPass").value.trim(), msg=document.getElementById("regMsg"); if(!name||!phone||!email||!pass){msg.textContent="Fill all";return;} const id=email.replace(/[^a-z0-9]/g,"_"); const p={id,name,phone,email,password:pass,role:"customer",createdAt:new Date().toISOString()}; msg.textContent="Creating..."; try{ const ex=await getDoc(doc(db,"customers",id)); if(ex.exists()){msg.textContent="Exists, login";return;} await setDoc(doc(db,"customers",id),p); localStorage.setItem("floot_customer_session",JSON.stringify(p)); loginOK(p);}catch(e){msg.textContent=e.message;} };
+document.getElementById("loginBtn").onclick=async()=>{ const email=document.getElementById("loginEmail").value.trim().toLowerCase(), pass=document.getElementById("loginPass").value.trim(), msg=document.getElementById("loginMsg"); if(!email||!pass){msg.textContent="Enter";return;} msg.textContent="Logging..."; try{ const id=email.replace(/[^a-z0-9]/g,"_"); let snap=await getDoc(doc(db,"customers",id)); let prof=snap.exists()?snap.data():null; if(!prof){ const q=query(collection(db,"customers"),where("email","==",email),limit(1)); const qs=await getDocs(q); if(!qs.empty) prof=qs.docs[0].data(); } if(!prof){msg.textContent="No account";return;} if(prof.password!==pass){msg.textContent="Wrong";return;} localStorage.setItem("floot_customer_session",JSON.stringify(prof)); loginOK(prof);}catch(e){msg.textContent=e.message;} };
+document.getElementById("logoutBtn").onclick=()=>{ localStorage.removeItem("floot_customer_session"); location.reload(); };
+function initMap(){ if(map) return; map=L.map('map',{zoomControl:false,attributionControl:false}).setView(CENTER,10); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map); L.control.zoom({position:'bottomright'}).addTo(map); }
+function hav(a,b){ const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+function attach(id,sid,setter){
+ const inp=document.getElementById(id), sug=document.getElementById(sid);
+ inp.addEventListener("input",()=>{
+  const v=inp.value.trim().toLowerCase(); if(v.length<1){sug.style.display="none";return;}
+  let f=PLACES.filter(p=>p.name.toLowerCase().includes(v)).slice(0,6);
+  sug.innerHTML=f.map(p=>'<div data-lat="'+p.lat+'" data-lng="'+p.lng+'" data-name="'+p.name+'">'+p.name+'</div>').join("");
+  sug.style.display=f.length?"block":"none";
+  sug.querySelectorAll("div").forEach(el=>{ el.onclick=()=>{ inp.value=el.getAttribute("data-name"); setter({lat:+el.getAttribute("data-lat"),lng:+el.getAttribute("data-lng")}); sug.style.display="none"; upd(); }; });
+  setTimeout(async()=>{ try{ const q=inp.value.trim(); if(q.length<3) return; const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=ng&q='+encodeURIComponent(q)+'&limit=5'); const j=await r.json(); if(j.length>0){ let extra=j.map(o=>'<div data-lat="'+o.lat+'" data-lng="'+o.lon+'" data-name="'+o.display_name+'">'+o.display_name+'</div>').join(""); sug.innerHTML+=extra; sug.style.display="block"; sug.querySelectorAll("div").forEach(el=>{ el.onclick=()=>{ inp.value=el.getAttribute("data-name").split(",").slice(0,3).join(","); setter({lat:+el.getAttribute("data-lat"),lng:+el.getAttribute("data-lng")}); sug.style.display="none"; upd(); }; }); } }catch{} },500);
+ });
+ document.addEventListener("click",e=>{ if(!sug.contains(e.target)&&e.target!==inp) sug.style.display="none"; });
+}
+attach("fromI","fromS",c=>fromCoord=c); attach("toI","toS",c=>toCoord=c);
+function upd(){ if(!fromCoord||!toCoord) return; if(!map) initMap(); if(fromM) map.removeLayer(fromM); if(toM) map.removeLayer(toM); if(line) map.removeLayer(line); const fI=L.divIcon({html:'<div style="width:12px;height:12px;background:#7C3AED;border:3px solid #fff;border-radius:50%"></div>',iconSize:[12,12]}); const tI=L.divIcon({html:'<div style="width:12px;height:12px;background:#7C3AED;border:3px solid #fff;border-radius:50%"></div>',iconSize:[12,12]}); fromM=L.marker([fromCoord.lat,fromCoord.lng],{icon:fI}).addTo(map); toM=L.marker([toCoord.lat,toCoord.lng],{icon:tI}).addTo(map); line=L.polyline([[fromCoord.lat,fromCoord.lng],[toCoord.lat,toCoord.lng]],{color:'#7C3AED',weight:4,dashArray:'8,8'}).addTo(map); map.fitBounds(L.latLngBounds([[fromCoord.lat,fromCoord.lng],[toCoord.lat,toCoord.lng]]),{padding:[80,80]}); }
+function setTab(w){ document.getElementById("searchSec").style.display=w=="search"?"block":"none"; document.getElementById("ridesSec").style.display=w=="rides"?"block":"none"; document.getElementById("tSearch").classList.toggle("active",w=="search"); document.getElementById("tRides").classList.toggle("active",w=="rides"); if(map) setTimeout(()=>map.invalidateSize(),200); }
+document.getElementById("tSearch").onclick=()=>setTab("search"); document.getElementById("tRides").onclick=()=>setTab("rides");
+
+
+// En-route + 30 min logic helpers
+function toRad(d){ return d*Math.PI/180; }
+function bearing(a,b){
+ const lat1=toRad(a.lat), lat2=toRad(b.lat), dLng=toRad(b.lng-a.lng);
+ const y=Math.sin(dLng)*Math.cos(lat2);
+ const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
+ const br=Math.atan2(y,x)*180/Math.PI;
+ return (br+360)%360;
+}
+function distToSegment(p, v, w){
+ // distance from point p to segment v-w in km
+ const l2 = hav(v,w);
+ if(l2===0) return hav(p,v);
+ // projection
+ const t = ((p.lat - v.lat)*(w.lat - v.lat) + (p.lng - v.lng)*(w.lng - v.lng)) / ((w.lat - v.lat)*(w.lat - v.lat) + (w.lng - v.lng)*(w.lng - v.lng));
+ const tt = Math.max(0, Math.min(1, t));
+ const proj = {lat: v.lat + tt*(w.lat - v.lat), lng: v.lng + tt*(w.lng - v.lng)};
+ return hav(p, proj);
+}
+function isEnRoute(driverFrom, driverTo, custPickup, custDropoff){
+ // 1. driver within 30 mins (approx 20km) from customer pickup
+ const dFromToPickup = hav(driverFrom, custPickup);
+ if(dFromToPickup > 25) return false; // more than ~30 mins drive (20-25km) - filter out far drivers
+ // 2. driver heading towards customer dropoff (driver goes past or towards)
+ const dFromToCustDrop = hav(driverFrom, custDropoff);
+ const dFromToDriverTo = hav(driverFrom, driverTo);
+ // customer pickup should be before dropoff along driver direction
+ if(dFromToCustDrop <= dFromToPickup) return false; // driver not heading towards customer's destination
+ // 3. customer pickup within 5km of driver's route (en-route buffer)
+ const distToRoute = distToSegment(custPickup, driverFrom, driverTo);
+ if(distToRoute > 6) return false; // not en-route
+ // 4. bearing check - driver direction similar to customer direction (within 90 deg)
+ const driverBr = bearing(driverFrom, driverTo);
+ const custBr = bearing(custPickup, custDropoff);
+ const diff = Math.abs(driverBr - custBr);
+ const bearDiff = diff > 180 ? 360 - diff : diff;
+ if(bearDiff > 90) return false; // opposite direction
+ return true;
+}
+
+document.getElementById("searchBtn").onclick=async()=>{
+ if(!fromCoord||!toCoord){ document.getElementById("sMsg").textContent="⚠️ Select From & To from dropdown"; return; }
+ const from=document.getElementById("fromI").value.trim(), to=document.getElementById("toI").value.trim();
+ document.getElementById("sMsg").textContent="Searching rides near you (within 30 mins, en-route)...";
+ try{
+  const q=query(collection(db,"pool_trips"), where("status","==","open"), limit(30));
+  const qs=await getDocs(q);
+  let allPools=qs.docs.map(d=>({id:d.id,...d.data()}));
+  // Filter: within 30 mins drive (~25km) AND en-route towards your destination
+  availablePools=allPools.filter(p=>{
+   if(!p.fromLat||!p.toLat) return false;
+   const driverFrom={lat:p.fromLat,lng:p.fromLng};
+   const driverTo={lat:p.toLat,lng:p.toLng};
+   return isEnRoute(driverFrom, driverTo, fromCoord, toCoord);
+  });
+  if(availablePools.length==0){
+   // Show why no results
+   document.getElementById("poolsBox").innerHTML='<div style="font-size:12px;color:#666;text-align:center;padding:20px;background:#fff;border-radius:16px;border:1px solid #EDE9FE">No drivers within 30 mins drive heading your way.<br><br>We only show drivers:<br>• Within ~30 mins (25km) from your pickup<br>• Heading towards your destination<br>• Even if they go past your destination (en-route)<br><br>Try different pickup location or check again later.</div>';
+   document.getElementById("sMsg").textContent="No en-route drivers within 30 mins";
+   return;
+  }
+  document.getElementById("poolsBox").innerHTML=availablePools.map(p=>{
+   const dist = p.distance?Number(p.distance).toFixed(1):"0";
+   const kmToPickup = hav(fromCoord,{lat:p.fromLat,lng:p.fromLng}).toFixed(1);
+   const mins = Math.round((kmToPickup/35)*60); // approx 35km/h Lagos
+   return `<div class="pool-card" onclick="joinPool('${p.id}')" style="border-color:#7C3AED">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">🚗 ${p.from.split(",")[0]} → ${p.to.split(",")[0]}</b><span style="font-size:10px;background:#F5F3FF;color:#7C3AED;padding:4px 8px;border-radius:999px;font-weight:800">${p.totalSeats - (p.joinedCount||0)} seats • ${mins} mins away</span></div>
+    <div style="font-size:11px;color:#666;margin-top:4px">Driver: ${p.driverName||"Driver"} • ${p.vehicle||"Car"} • ${dist}km trip</div>
+    <div style="font-size:11px;color:#7C3AED;margin-top:6px"><i class="fa-solid fa-route"></i> ${kmToPickup}km from you • ${mins} mins drive • En-route to ${to.split(",")[0]} • Goes past your destination</div>
+    <div style="margin-top:8px"><span style="font-size:10px;background:#FEF3C7;color:#92400E;padding:4px 8px;border-radius:999px;font-weight:800">₦${(500+Math.round(hav(fromCoord,toCoord)*60)).toLocaleString()} • Tap to join</span></div>
+   </div>`;
+  }).join("");
+  document.getElementById("sMsg").textContent=`Found ${availablePools.length} en-route drivers within 30 mins`;
+ }catch(e){ console.error(e); document.getElementById("sMsg").textContent="Error: "+e.message; }
+};
+
+
+window.joinPool=async(poolId)=>{
+ if(myRides.some(r=> ["searching","pending","accepted","picked_up","on_trip"].includes(r.status))){ notif("You have active ride - complete it first - one ride at a time"); return; }
+ const pool=availablePools.find(p=>p.id==poolId); if(!pool){ notif("Pool not found"); return; }
+ const from=document.getElementById("fromI").value.trim(), to=document.getElementById("toI").value.trim();
+ if(!from||!to||!fromCoord||!toCoord){ notif("Select pickup & destination from dropdown"); return; }
+ const dist = hav(fromCoord, toCoord);
+ const fare = 500 + Math.round(dist*60);
+ const pickupOtp = Math.floor(1000+Math.random()*9000);
+ const dropoffOtp = Math.floor(1000+Math.random()*9000);
+ const payload={
+  poolId:pool.id,
+  poolFrom:pool.from,
+  poolTo:pool.to,
+  driverId:pool.driverId,
+  driverName:pool.driverName||"",
+  customerId:currentCustomer.id,
+  customerName:currentCustomer.name,
+  customerPhone:currentCustomer.phone,
+  customerEmail:currentCustomer.email||"",
+  customerPickup:from,
+  customerDropoff:to,
+  pickup:from,
+  dropoff:to,
+  customerPickupLat:fromCoord.lat,
+  customerPickupLng:fromCoord.lng,
+  customerDropoffLat:toCoord.lat,
+  customerDropoffLng:toCoord.lng,
+  distance:dist,
+  fare:fare,
+  pickupOtp:pickupOtp,
+  dropoffOtp:dropoffOtp,
+  otp:pickupOtp,
+  rating:"4.9",
+  status:"searching",
+  createdAt:new Date().toISOString(),
+  country:"Nigeria"
+ };
+ try{
+  const ref=await addDoc(collection(db,"pool_requests"),payload);
+  console.log("✅ Request sent - ",ref.id,"with OTPs:",pickupOtp,dropoffOtp);
+  notif("✅ Request sent - Your pickup code: "+pickupOtp+" - Show this to driver only when asked");
+  setTab("rides");
+ }catch(e){ console.error(e); notif("Error: "+e.message); }
+};
+
+function rideCardHTML(r){
+ const isSearching = r.status=="searching"||r.status=="pending";
+ const isAccepted = r.status=="accepted";
+ const isPicked = r.status=="picked_up"||r.status=="on_trip";
+ const isCompleted = r.status=="completed";
+ return `<div class="card ${isAccepted||isPicked?'active':''}">
+  <div style="display:flex;gap:10px;align-items:center">
+    <div style="width:36px;height:36px;border-radius:50%;background:${isCompleted?'#7C3AED':isAccepted||isPicked?'#7C3AED':'#F5F3FF'};display:grid;place-items:center;color:${isCompleted||isAccepted||isPicked?'#fff':'#7C3AED'};font-weight:900">${(r.driverName||"D")[0].toUpperCase()}</div>
+    <div style="flex:1"><div style="font-weight:900;font-size:13px">${r.poolFrom?r.poolFrom.split(",")[0]+" → "+r.poolTo.split(",")[0]:r.customerPickup+" → "+r.customerDropoff}</div><div style="font-size:10px;color:#666">${r.status.toUpperCase()} • Driver: ${r.driverName||"Driver"} • ${r.driverId?r.driverId.slice(0,6):""}</div></div>
+    <div style="text-align:right"><div style="font-weight:900;font-size:14px;color:#7C3AED">₦${(r.fare||0).toLocaleString()}</div></div>
+  </div>
+  <div style="margin-top:10px;background:#F8F7FF;border-radius:14px;padding:10px">
+    <div style="font-size:10px;font-weight:800;color:#888;letter-spacing:.06em">YOUR TRIP</div>
+    <div class="route" style="margin-top:8px"><div class="dot green"></div><div class="addr">${r.customerPickup||r.pickup}</div></div>
+    <div class="route" style="margin-top:6px"><div class="dot purple"></div><div class="addr">${r.customerDropoff||r.dropoff}</div></div>
+    <div style="font-size:11px;color:#666;margin:6px 0 0 20px">${r.distance?Number(r.distance).toFixed(1):"0"}km • Pool: ${r.poolFrom||""} → ${r.poolTo||""}</div>
+  </div>
+  ${isSearching?`<div style="background:#FEF3C7;border-radius:12px;padding:10px;margin-top:10px;text-align:center"><div style="font-weight:800;font-size:12px;color:#92400E">⏳ Waiting for driver to accept</div><div style="font-size:11px;color:#666;margin-top:4px">Driver sees your name, pickup, destination before acceptance</div></div>`:''}
+  ${isAccepted?`<div class="otp-row"><div class="otp-box"><div class="lbl">PICKUP OTP - SHOW TO DRIVER ONLY</div><div class="val">${r.pickupOtp||r.otp}</div><div style="font-size:10px;color:#A78BFA;margin-top:4px">Driver cannot see this - you show it</div></div><div class="collect-box"><div class="lbl">TO PAY</div><div class="val">₦${(r.fare||0).toLocaleString()}</div></div></div>`:''}
+  ${isPicked?`<div class="otp-row"><div class="otp-box" style="border-color:#7C3AED"><div class="lbl">DROP-OFF OTP - SHOW TO DRIVER</div><div class="val">${r.dropoffOtp||r.pickupOtp||r.otp}</div><div style="font-size:10px;color:#A78BFA;margin-top:4px">Show this at dropoff</div></div><div class="collect-box"><div class="lbl">TO PAY</div><div class="val">₦${(r.fare||0).toLocaleString()}</div></div></div>`:''}
+  ${isCompleted?`<div style="background:#F5F3FF;border-radius:12px;padding:12px;margin-top:10px;text-align:center"><div style="font-weight:900;color:#5B21B6">✅ Trip Completed</div><div style="font-size:11px;color:#666;margin-top:4px">Paid ₦${(r.fare||0).toLocaleString()} • Thank you!</div></div>`:''}
+  <div class="actions" style="margin-top:10px">
+    ${isSearching||isAccepted?`<button onclick="cancelRide('${r.id}')" class="btn btn-cancel"><i class="fa-solid fa-xmark"></i> Cancel - Disappear</button>`:''}
+    ${isAccepted||isPicked?`<button onclick="callDriver('${r.driverName||''}')" class="btn btn-call"><i class="fa-solid fa-phone"></i> Call Driver</button>`:''}
+  </div>
+</div>`;
+}
+
+function renderRides(){
+ const box=document.getElementById("ridesBox"); const empty=document.getElementById("emptyBox");
+ if(myRides.length==0){ box.innerHTML=""; empty.style.display="block"; document.getElementById("cRides").textContent="0"; return; }
+ empty.style.display="none";
+ box.innerHTML=myRides.map(r=>rideCardHTML(r)).join("");
+ document.getElementById("cRides").textContent=myRides.length;
+}
+
+function startListeners(){
+ if(!currentCustomer) return;
+ console.log("Customer listener for:",currentCustomer.id);
+ onSnapshot(query(collection(db,"pool_requests"), where("customerId","==",currentCustomer.id), limit(50)), snap=>{
+  console.log("Customer requests:",snap.size);
+  const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=> new Date(b.createdAt||0)-new Date(a.createdAt||0));
+  const filtered=all.filter(r=> !r.status.includes("cancel") || r.status=="completed"); // cancelled disappears completely except completed stays
+  // Actually for customer: cancelled should disappear completely too
+  myRides=all.filter(r=> !r.status.includes("cancel")); // only show non-cancelled, completed stays for history then disappears? Let's keep completed
+  // For true disappear: myRides = all.filter(r=> !r.status.includes("cancel") );
+  // But keep completed for 1 min then hide? For now show completed
+  myRides=all.filter(r=> !r.status.includes("cancel") );
+  // If cancelled, it disappears completely - so filtered out
+  renderRides();
+  // Notify status changes
+  const newIds=new Set(snap.docs.map(d=>d.id)); const diff=[...newIds].filter(id=>!prevIds.has(id));
+  prevIds=newIds;
+ });
+}
+
+window.cancelRide=async(id)=>{
+ if(!confirm("Cancel ride? It will disappear completely from your app and driver will be notified")) return;
+ try{
+  console.log("Customer cancelling ride", id);
+  await updateDoc(doc(db,"pool_requests",id),{status:"cancelled_by_customer", cancelledAt: new Date().toISOString()});
+  notif("Cancelled - disappeared completely from your app");
+ }catch(e){
+  console.error("Cancel failed", e);
+  notif("Cancel failed: "+e.message);
+ }
+};
+window.callDriver=(n)=>{ notif("Calling driver: "+n); };
+
+setTab("search"); initMap(); renderRides();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body></html>
